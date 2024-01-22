@@ -1,0 +1,81 @@
+name: "CI Tests"
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  slurm:
+    name: "Slurm Docker images tests"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: "Get current date"
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      - name: "Build slurmctld image"
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            COMMIT=${{ github.sha }}
+            CREATION_DATE=${{ env.NOW }}
+          context: slurm/slurmctld
+          load: true
+          tags: alphaunito/slurmctld:21.08.5
+      - name: "Build slurmd image"
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            COMMIT=${{ github.sha }}
+            CREATION_DATE=${{ env.NOW }}
+          context: slurm/slurmd
+          load: true
+          tags: alphaunito/slurmd:21.08.5
+      - name: "Start Docker Compose"
+        id: start-compose
+        run: |
+          docker compose                      \
+              --file slurm/docker-compose.yml \
+              --project-name slurm            \
+            up                                \
+              --wait                          \
+              --wait-timeout 60               \
+      - name: "Run test with Docker Compose"
+        id: run-tests
+        run: |
+          docker compose                      \
+              --file slurm/docker-compose.yml \
+              --project-name slurm            \
+            exec                              \
+              --user hpcuser                  \
+              slurmctld srun hostname
+      - name: "Show slurmctld logs on failure"
+        if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
+        run: |
+          docker compose                      \
+              --file slurm/docker-compose.yml \
+              --project-name slurm            \
+            logs                              \
+              slurmctld
+      - name: "Show slurmd logs on failure"
+        if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
+        run: |
+          docker compose                      \
+              --file slurm/docker-compose.yml \
+              --project-name slurm            \
+            logs                              \
+              slurmd
+      - name: "Stop Docker Compose"
+        if: ${{ always() }}
+        run: |
+          docker compose                      \
+              --file slurm/docker-compose.yml \
+              --project-name slurm            \
+            down                              \
+              --volumes

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+test "$(supervisorctl status | awk '{print $2}' | sort | uniq)" == "RUNNING"
+exit $?

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+echo "The Slurm controller hostname is ${SLURMCTLD_HOSTNAME:=$(hostname)}"
+
+if [ -z "${SLURMD_HOSTNAME_PREFIX}" ]; then
+    >&2 echo "Missing environment variable SLURMD_HOSTNAME_PREFIX containing the prefix of compute nodes' hostname"
+    exit 1
+fi
+
+if [ -z "${SLURMD_NODES}" ]; then
+    >&2 echo "Missing environment variable SLURMD_NODES containing the number of compute nodes"
+    exit 1
+fi
+
+sed -i "s/__SLURMCTLD_HOST__/${SLURMCTLD_HOSTNAME}/g" /etc/slurm/slurm.conf
+sed -i "s/__SLURMD_HOSTNAME_PREFIX__/${SLURMD_HOSTNAME_PREFIX}/g" /etc/slurm/slurm.conf
+sed -i "s/__SLURMD_NODES__/${SLURMD_NODES}/g" /etc/slurm/slurm.conf
+
+SLURM_NODE_CPUS=$(hwloc-ls --only PU --of console | wc -l)
+SLURM_NODE_PHYSICAL_CORES=$(hwloc-ls -p --only CORE --of console | wc -l)
+SLURM_NODE_SOCKETS=$(hwloc-ls --only SOCKET --of console | wc -l)
+
+sed -i "s/__SLURM_CPUS_ON_NODE__/${SLURM_NODE_CPUS}/g" /etc/slurm/slurm.conf
+sed -i "s/__SLURM_SOCKETS_ON_NODE__/${SLURM_NODE_SOCKETS}/g" /etc/slurm/slurm.conf
+sed -i "s/__SLURM_CORES_PER_SOCKET_ON_NODE__/$((SLURM_NODE_PHYSICAL_CORES / SLURM_NODE_SOCKETS))/g" /etc/slurm/slurm.conf
+sed -i "s/__SLURM_THREADS_PER_CORE__/$((SLURM_NODE_CPUS / SLURM_NODE_PHYSICAL_CORES))/g" /etc/slurm/slurm.conf
+
+exec gosu slurm /usr/sbin/slurmctld -D

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ -z "${SLURMCTLD_HOSTNAME}" ]; then
+    >&2 echo "Missing environment variable SLURMCTLD_HOSTNAME containing the slurmctld hostname"
+    exit 1
+fi
+
+while [ -z "${SLURMCTLD_IFACE}" ]; do
+    SLURMCTLD_IFACE="$(ip route get $(dig +short ${SLURMCTLD_HOSTNAME}) | head -n 1 | awk '{print $3}')"
+done
+
+echo "Network interface used to reach ${SLURMCTLD_HOSTNAME}: ${SLURMCTLD_IFACE}"
+NODE_HOSTNAME="$(dig +short -x $(ip addr show ${SLURMCTLD_IFACE} | grep inet | awk '{print $2}' | awk -F '/' '{print $1}') | cut -d '.' -f1)"
+echo "Node hostname is ${NODE_HOSTNAME}"
+
+slurmd --conf-server "${SLURMCTLD_HOSTNAME}" -N "${NODE_HOSTNAME}" -D
