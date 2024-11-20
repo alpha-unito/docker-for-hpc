@@ -27,7 +27,7 @@ jobs:
             CREATION_DATE=${{ env.NOW }}
           context: slurm/slurmctld
           load: true
-          tags: alphaunito/slurmctld:21.08.5
+          tags: alphaunito/slurmctld:23.11.4
       - name: "Build slurmd image"
         uses: docker/build-push-action@v5
         with:
@@ -36,7 +36,7 @@ jobs:
             CREATION_DATE=${{ env.NOW }}
           context: slurm/slurmd
           load: true
-          tags: alphaunito/slurmd:21.08.5
+          tags: alphaunito/slurmd:23.11.4
       - name: "Start Docker Compose"
         id: start-compose
         run: |
@@ -54,7 +54,7 @@ jobs:
               --project-name slurm            \
             exec                              \
               --user hpcuser                  \
-              slurmctld srun hostname
+              slurmctld srun -n 1 --deadline 00:01:00 hostname
       - name: "Show slurmctld logs on failure"
         if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
         run: |

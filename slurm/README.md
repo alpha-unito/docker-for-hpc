@@ -1,11 +1,11 @@
 # Slurm on Docker
 
-This folder contains a fully Dockerized version of the [Slurm](https://slurm.schedmd.com/) queue manager. The version of SLURM shipped is the one downloaded from the apt repository, which is currently `21.08.5`
+This folder contains a fully Dockerized version of the [Slurm](https://slurm.schedmd.com/) queue manager. The version of SLURM shipped is the one downloaded from the apt repository, which is currently `23.11.4`
 
 This repository contains the source code of different container images:
 
-- `alphaunito/slurmctld:21.08.5`, which runs the Slurm control plane
-- `alphaunito/slurmd:21:08.5`, which runs a Slurm compute node
+- `alphaunito/slurmctld:23.11.4`, which runs the Slurm control plane
+- `alphaunito/slurmd:23.11.4`, which runs a Slurm compute node
 
 Plus, it also contains a [docker-compose.yml](./docker-compose.yml) file that can deplyo an entire Slurm cluster with a single controller and a set of compute nodes. All these components are detailed below
 
@@ -14,8 +14,8 @@ Plus, it also contains a [docker-compose.yml](./docker-compose.yml) file that ca
 The `slurmctld` process is the central management daemon of Slurm. It constitutes the control plane of the Slurm queue manager. The `slurmctld` Docker image can be build and published on DockerHub using the following commands
 
 ```bash
-docker build -t alphaunito/slurmctld:21.08.5 slurmctld
-docker push alphaunito/slurmctld:21.08.5
+docker build -t alphaunito/slurmctld:23.11.4 slurmctld
+docker push alphaunito/slurmctld:23.11.4
 ```
 
 To correctly populate the `slurm.conf` file, a `slurmctld` container needs 3 environment variables:
@@ -31,8 +31,8 @@ Note that all the compute nodes in the simulated HPC cluster should have a reach
 The `slurmd` process is the compute node daemon for Slurm. It monitors all tasks running on the compute node , accepts work (tasks), launches tasks, and kills running tasks upon request. The `slurmd` Docker image can be build and published using the following commands
 
 ```bash
-docker build -t alphaunito/slurmd:21.08.5 slurmd
-docker push alphaunito/slurmd:21.08.5
+docker build -t alphaunito/slurmd:23.11.4 slurmd
+docker push alphaunito/slurmd:23.11.4
 ```
 
 To correctly connect to a `slurmctld` node, a `slurmd` container needs a `SLURMCTLD_HOSTNAME` variable that should contain the hostname of the target `slurmctld` container. If this variable is not set, the container displays an error message and terminates
