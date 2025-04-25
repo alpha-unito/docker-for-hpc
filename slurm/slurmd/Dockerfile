@@ -1,17 +1,17 @@
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 ARG COMMIT="none"
 ARG CREATION_DATE="none"
 
 LABEL org.opencontainers.image.authors="Iacopo Colonnelli <iacopo.colonnelli@unito.it>"
-LABEL org.opencontainers.image.base.name="docker.io/ubuntu:jammy"
+LABEL org.opencontainers.image.base.name="docker.io/ubuntu:noble"
 LABEL org.opencontainers.image.created="${CREATION_DATE}"
 LABEL org.opencontainers.image.licenses="OpenSSL"
 LABEL org.opencontainers.image.revision="${COMMIT}"
 LABEL org.opencontainers.image.ref.name="alphaunito/slurmd"
 LABEL org.opencontainers.image.source="https://github.com/alpha-unito/docker-for-hpc"
 LABEL org.opencontainers.image.title="Slurm compute node"
-LABEL org.opencontainers.image.version="21.08.5"
+LABEL org.opencontainers.image.version="23.11.4"
 
 RUN apt update                                                                             \
  && apt install -y --no-install-recommends                                                 \
@@ -50,9 +50,6 @@ RUN apt update                                                                  
         --gecos ""                                                                         \
         hpcuser
 
-COPY config/cgroups.conf                                                                   \
-     /etc/slurm/
-
 COPY config/supervisord.conf                                                               \
      /etc/supervisor/conf.d/
 
@@ -66,4 +63,4 @@ EXPOSE 22
 
 WORKDIR /home/hpcuser
 
-ENTRYPOINT supervisord
+ENTRYPOINT ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

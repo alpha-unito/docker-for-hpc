@@ -31,7 +31,7 @@ jobs:
           context: slurm/slurmctld
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: alphaunito/slurmctld:21.08.5
+          tags: alphaunito/slurmctld:23.11.4
       - name: "Build slurmd image"
         uses: docker/build-push-action@v5
         with:
@@ -41,4 +41,4 @@ jobs:
           context: slurm/slurmd
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: alphaunito/slurmd:21.08.5
+          tags: alphaunito/slurmd:23.11.4
