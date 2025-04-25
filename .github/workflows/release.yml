@@ -29,6 +29,7 @@ jobs:
             COMMIT=${{ github.sha }}
             CREATION_DATE=${{ env.NOW }}
           context: slurm/slurmctld
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: alphaunito/slurmctld:21.08.5
       - name: "Build slurmd image"
@@ -38,5 +39,6 @@ jobs:
             COMMIT=${{ github.sha }}
             CREATION_DATE=${{ env.NOW }}
           context: slurm/slurmd
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: alphaunito/slurmd:21.08.5
