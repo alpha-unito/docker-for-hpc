@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: "Build slurmctld image"
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-args: |
             COMMIT=${{ github.sha }}
@@ -33,7 +33,7 @@ jobs:
           push: true
           tags: alphaunito/slurmctld:23.11.4
       - name: "Build slurmd image"
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-args: |
             COMMIT=${{ github.sha }}
