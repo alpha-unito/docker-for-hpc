@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -m
+
+echo "The OpenPBS controller hostname is ${PBS_SERVER_HOST_NAME:=$(hostname)}"
+
+if [ -z "${PBS_EXECUTION_HOST_NAME_PREFIX}" ]; then
+    >&2 echo "Missing environment variable PBS_EXECUTION_HOST_NAME_PREFIX containing the prefix of compute nodes' hostname"
+    exit 1
+fi
+
+if [ -z "${PBS_EXECUTION_NODES}" ]; then
+    >&2 echo "Missing environment variable PBS_EXECUTION_NODES containing the number of compute nodes"
+    exit 1
+fi
+
+sed -i "s/__PBS_SERVER_HOST_NAME__/${PBS_SERVER_HOST_NAME}/g" /etc/pbs.conf
+
+source /etc/pbs.conf
+
+if [ ! -f "${PBS_HOME}/pbs_version" ]; then
+    echo "PBS Home directory ${PBS_HOME} needs updating."
+	echo "Running ${PBS_EXEC}/libexec/pbs_habitat to update it."
+    ${PBS_EXEC}/libexec/pbs_habitat
+fi
+
+sh -c "${PBS_EXEC}/sbin/pbs_server -N" &
+sleep 3
+
+echo "Configure OpenPBS server"
+${PBS_EXEC}/bin/qmgr -c "set server job_history_enable=True"
+${PBS_EXEC}/bin/qmgr -c "set server job_history_duration=00:05:00"
+
+echo "Configure OpenPBS scheduler"
+${PBS_EXEC}/bin/qmgr -c "set sched sched_host = localhost"
+
+for NODE in $(seq 1 ${PBS_EXECUTION_NODES}); do
+    echo "Create node ${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE}"
+    ${PBS_EXEC}/bin/qmgr -c "create node ${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE} queue=workq"
+done
+
+fg %?pbs_server > /dev/null

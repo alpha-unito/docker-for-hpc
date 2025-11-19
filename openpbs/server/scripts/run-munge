@@ -1,0 +1,5 @@
+#!/bin/bash
+
+create-munge-key
+
+gosu munge /usr/sbin/munged --foreground

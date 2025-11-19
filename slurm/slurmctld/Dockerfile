@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.licenses="OpenSSL"
 LABEL org.opencontainers.image.revision="${COMMIT}"
 LABEL org.opencontainers.image.ref.name="alphaunito/slurmctld"
 LABEL org.opencontainers.image.source="https://github.com/alpha-unito/docker-for-hpc"
-LABEL org.opencontainers.image.title="Slurm management daemon"
+LABEL org.opencontainers.image.title="Slurm management node"
 LABEL org.opencontainers.image.version="23.11.4"
 
 RUN apt update                                                                             \
@@ -59,7 +59,7 @@ COPY scripts/healthcheck                                                        
      scripts/run-slurmctld                                                                 \
      /bin/
 
-HEALTHCHECK --start-period=20s CMD healthcheck
+HEALTHCHECK --start-period=10s CMD healthcheck
 
 EXPOSE 22 6817
 
