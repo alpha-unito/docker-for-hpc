@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z "${PBS_SERVER_HOST_NAME}" ]; then
+    >&2 echo "Missing environment variable PBS_SERVER_HOST_NAME containing the OpenPBS server hostname"
+    exit 1
+fi
+
+sed -i "s/__PBS_SERVER_HOST_NAME__/${PBS_SERVER_HOST_NAME}/g" /etc/pbs.conf
+
+source /etc/pbs.conf
+
+${PBS_EXEC}/sbin/pbs_mom -N

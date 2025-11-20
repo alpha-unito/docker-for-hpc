@@ -57,7 +57,7 @@ COPY scripts/healthcheck                                                        
      scripts/run-slurmd                                                                    \
      /bin/
 
-HEALTHCHECK --start-period=20s CMD healthcheck
+HEALTHCHECK --start-period=10s CMD healthcheck
 
 EXPOSE 22
 

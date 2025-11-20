@@ -9,6 +9,7 @@ This repository's main purpose is to provide the HPC community with Docker-based
 
 All Docker containers are published on DockerHub under the `alphaunito` organization. At the moment, this repository contains Dockerized versions of:
 
+- [OpenPBS](./openpbs/README.md)
 - [Slurm](./slurm/README.md)
 
 All images support the explicit definition of opencontainers [annotations](https://github.com/opencontainers/image-spec/blob/main/annotations.md) through two build args:

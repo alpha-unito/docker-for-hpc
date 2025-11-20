@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "$(supervisorctl -c /etc/supervisor/conf.d/supervisord.conf status | awk '{print $2}' | sort | uniq)" == "RUNNING" ]; then
+    qstat
+    exit $?
+else
+    exit 1
+fi

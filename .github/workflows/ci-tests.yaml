@@ -10,9 +10,79 @@ concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  openpbs:
+    name: "OpenPBS Docker images tests"
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: "Get current date"
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      - name: "Build OpenPBS server image"
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            COMMIT=${{ github.sha }}
+            CREATION_DATE=${{ env.NOW }}
+          context: openpbs/server
+          load: true
+          tags: alphaunito/openpbs-server:23.06.06
+      - name: "Build OpenPBS execution image"
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            COMMIT=${{ github.sha }}
+            CREATION_DATE=${{ env.NOW }}
+          context: openpbs/execution
+          load: true
+          tags: alphaunito/openpbs-execution:23.06.06
+      - name: "Start Docker Compose"
+        id: start-compose
+        run: |
+          docker compose                        \
+              --file openpbs/docker-compose.yml \
+              --project-name openpbs            \
+            up                                  \
+              --wait                            \
+              --wait-timeout 60                 \
+      - name: "Run test with Docker Compose"
+        id: run-tests
+        run: |
+          docker compose                        \
+              --file openpbs/docker-compose.yml \
+              --project-name openpbs            \
+            exec                                \
+              --user hpcuser                    \
+              server                            \
+              sh -c "echo 'hostname' | qsub -"
+      - name: "Show OpenPBS server logs on failure"
+        if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
+        run: |
+          docker compose                        \
+              --file openpbs/docker-compose.yml \
+              --project-name openpbs            \
+            logs                                \
+              server
+      - name: "Show OpenPBS execution logs on failure"
+        if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
+        run: |
+          docker compose                        \
+              --file openpbs/docker-compose.yml \
+              --project-name openpbs            \
+            logs                                \
+              execution
+      - name: "Stop Docker Compose"
+        if: ${{ always() }}
+        run: |
+          docker compose                        \
+              --file openpbs/docker-compose.yml \
+              --project-name openpbs            \
+            down                                \
+              --volumes
   slurm:
     name: "Slurm Docker images tests"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - uses: docker/setup-qemu-action@v3

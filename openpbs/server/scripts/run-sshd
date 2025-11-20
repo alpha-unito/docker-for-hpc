@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Create SSH keys
+mkdir -m 700 -p /home/hpcuser/.ssh
+ssh-keygen -t ed25519 -f /home/hpcuser/.ssh/id_ed25519 -N "" -q -C"hpcuser@openpbs"
+cat /home/hpcuser/.ssh/id_ed25519.pub > /home/hpcuser/.ssh/authorized_keys
+chmod 600 /home/hpcuser/.ssh/authorized_keys
+chown -R hpcuser:hpcuser /home/hpcuser/.ssh
+
+# Disable StrictHostKeyChecking
+sed -i "s/#   StrictHostKeyChecking ask/    StrictHostKeyChecking no/g" /etc/ssh/ssh_config
+
+# Enable SSH connections
+rm -f /run/nologin
+
+# Start SSH daemon
+/usr/sbin/sshd -D

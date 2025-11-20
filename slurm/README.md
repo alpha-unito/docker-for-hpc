@@ -18,9 +18,8 @@ docker build -t alphaunito/slurmctld:23.11.4 slurmctld
 docker push alphaunito/slurmctld:23.11.4
 ```
 
-To correctly populate the `slurm.conf` file, a `slurmctld` container needs 3 environment variables:
+To correctly populate the `slurm.conf` file, a `slurmctld` container needs 2 environment variables:
 
-- The `SLURMCTLD_HOSTNAME` variable should contain the hostname of the container. It is populated by default using the `hostname` command
 - The `SLURMD_NODES` variable must contain the number of compute nodes that Slurm should manage. If this variable is not set, the container displays an error message and terminates
 - The `SLURMD_HOSTNAME_PREFIX` variable should contain the prefix of the hostname used to identify compute nodes. If this variable is not set, the container displays an error message and terminates
 

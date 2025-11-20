@@ -8,9 +8,43 @@ on:
     types:
       - completed
 jobs:
+  openpbs:
+    name: "OpenPBS Docker images"
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: "Get current date"
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: "Build OpenPBS server image"
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            COMMIT=${{ github.sha }}
+            CREATION_DATE=${{ env.NOW }}
+          context: openpbs/server
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: alphaunito/openpbs-server:23.06.06
+      - name: "Build OpenPBS execution image"
+        uses: docker/build-push-action@v6
+        with:
+          build-args: |
+            COMMIT=${{ github.sha }}
+            CREATION_DATE=${{ env.NOW }}
+          context: openpbs/execution
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: alphaunito/openpbs-execution:23.06.06
   slurm:
     name: "Slurm Docker images"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v5

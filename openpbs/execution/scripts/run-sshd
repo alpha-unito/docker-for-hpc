@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Enable SSH connections
+rm -f /run/nologin
+
+# Disable StrictHostKeyChecking
+sed -i "s/#   StrictHostKeyChecking ask/    StrictHostKeyChecking no/g" /etc/ssh/ssh_config
+
+# Start SSH daemon
+/usr/sbin/sshd -D

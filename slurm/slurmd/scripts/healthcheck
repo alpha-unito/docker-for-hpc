@@ -1,4 +1,4 @@
 #!/bin/bash
 
-test "$(supervisorctl status | awk '{print $2}' | sort | uniq)" == "RUNNING"
+test "$(supervisorctl -c /etc/supervisor/conf.d/supervisord.conf status | awk '{print $2}' | sort | uniq)" == "RUNNING"
 exit $?
