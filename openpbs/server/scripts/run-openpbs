@@ -28,6 +28,7 @@ sh -c "${PBS_EXEC}/sbin/pbs_server -N" &
 sleep 3
 
 echo "Configure OpenPBS server"
+${PBS_EXEC}/bin/qmgr -c "set server flatuid=True"
 ${PBS_EXEC}/bin/qmgr -c "set server job_history_enable=True"
 ${PBS_EXEC}/bin/qmgr -c "set server job_history_duration=00:05:00"
 
