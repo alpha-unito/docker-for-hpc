@@ -16,6 +16,7 @@ LABEL org.opencontainers.image.version="23.06.06"
 RUN curl -fsSL -O https://vcdn.altair.com/rl/OpenPBS/openpbs_23.06.06.rockylinux_8.8.zip    \
  && dnf install -y epel-release                                                             \
  && dnf install -y                                                                          \
+        findutils                                                                           \
         munge                                                                               \
         openssh-clients                                                                     \
         openssh-server                                                                      \
