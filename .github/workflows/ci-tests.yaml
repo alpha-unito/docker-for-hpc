@@ -54,7 +54,7 @@ jobs:
               --project-name openpbs            \
             exec                                \
               server                            \
-              sh -c "echo 'hostname' | qsub -"
+              sh -c "echo 'hostname' | qsub -l 'nodes=2:ppn=1' -"
       - name: "Show OpenPBS server logs on failure"
         if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
         run: |
