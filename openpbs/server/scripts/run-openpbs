@@ -35,7 +35,7 @@ ${PBS_EXEC}/bin/qmgr -c "set server job_history_duration = 00:05:00"
 echo "Configure OpenPBS scheduler"
 ${PBS_EXEC}/bin/qmgr -c "set sched sched_host = localhost"
 
-for NODE in $(seq 1 ${PBS_EXECUTION_NODES}); do
+for NODE in $(seq 0 $((PBS_EXECUTION_NODES-1))); do
     echo "Create node ${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE}"
     ${PBS_EXEC}/bin/qmgr -c "create node ${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE} queue=workq"
 done
