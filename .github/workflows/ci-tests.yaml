@@ -55,7 +55,7 @@ jobs:
             exec                                \
               --user hpcuser                    \
               server                            \
-              sh -c "echo 'hostname' | qsub -"
+              sh -c "echo 'hostname' | qsub -q workq -u hpcuser -"
       - name: "Show OpenPBS server logs on failure"
         if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
         run: |
