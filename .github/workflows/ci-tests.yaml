@@ -20,7 +20,7 @@ jobs:
       - name: "Get current date"
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: "Build OpenPBS server image"
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             COMMIT=${{ github.sha }}
@@ -29,7 +29,7 @@ jobs:
           load: true
           tags: alphaunito/openpbs-server:23.06.06
       - name: "Build OpenPBS execution image"
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             COMMIT=${{ github.sha }}
@@ -90,7 +90,7 @@ jobs:
       - name: "Get current date"
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
       - name: "Build slurmctld image"
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             COMMIT=${{ github.sha }}
@@ -99,7 +99,7 @@ jobs:
           load: true
           tags: alphaunito/slurmctld:23.11.4
       - name: "Build slurmd image"
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             COMMIT=${{ github.sha }}
