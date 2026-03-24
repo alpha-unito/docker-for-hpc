@@ -53,9 +53,8 @@ jobs:
               --file openpbs/docker-compose.yml \
               --project-name openpbs            \
             exec                                \
-              --user hpcuser                    \
               server                            \
-              sh -c "echo 'hostname' | qsub -q workq -u hpcuser -"
+              sh -c "echo 'hostname' | qsub -"
       - name: "Show OpenPBS server logs on failure"
         if: ${{ always() && (steps.start-compose.outcome == 'failure' || steps.run-tests.outcome == 'failure') }}
         run: |
