@@ -1,5 +1,12 @@
-#!/bin/bash
+#!/bin/bash -e
+
+if [ -f "/etc/munge/munge.key" ]; then
+    >&2 echo "File /etc/munge/munge.key already exists"
+    exit 1
+fi
 
 create-munge-key
+chown munge:munge /etc/munge/munge.key
+chmod 400 /etc/munge/munge.key
 
 gosu munge /usr/sbin/munged --foreground
