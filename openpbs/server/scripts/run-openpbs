@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 set -m
 
@@ -14,6 +14,12 @@ if [ -z "${PBS_EXECUTION_NODES}" ]; then
     exit 1
 fi
 
+echo "PBS_SERVER_HOST_NAME=${PBS_SERVER_HOST_NAME}" >> /var/spool/pbs/pbs_environment
+
+if [ ! -f  "/etc/pbs.conf" ]; then
+    >&2 echo "Missing /etc/pbs.conf file"
+    exit 1
+fi
 sed -i "s/__PBS_SERVER_HOST_NAME__/${PBS_SERVER_HOST_NAME}/g" /etc/pbs.conf
 
 source /etc/pbs.conf
@@ -33,9 +39,9 @@ ${PBS_EXEC}/bin/qmgr -c "set server job_history_enable = True"
 ${PBS_EXEC}/bin/qmgr -c "set server job_history_duration = 00:05:00"
 
 echo "Configure OpenPBS scheduler"
-${PBS_EXEC}/bin/qmgr -c "set sched sched_host = localhost"
+${PBS_EXEC}/bin/qmgr -c "set sched sched_host = ${PBS_SERVER_HOST_NAME}"
 
-for NODE in $(seq 0 $((PBS_EXECUTION_NODES-1))); do
+for NODE in $(seq 1 ${PBS_EXECUTION_NODES}); do
     echo "Create node ${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE}"
     ${PBS_EXEC}/bin/qmgr -c "create node ${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE} queue=workq"
 done

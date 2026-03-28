@@ -47,8 +47,12 @@ ENV PATH="${PATH}:/opt/pbs/bin"
 COPY config/supervisord.conf                                                                \
      /etc/supervisor/conf.d/
 
+COPY config/pbs.conf                                                                        \
+    /etc/pbs.conf
+
 COPY scripts/healthcheck                                                                    \
      scripts/run-sshd                                                                       \
+     scripts/run-munge                                                                      \
      scripts/run-openpbs                                                                    \
      /bin/
 

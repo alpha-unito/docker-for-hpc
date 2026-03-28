@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+MUNGE_KEY=/etc/munge/munge.key
+while [[ ! -s "${MUNGE_KEY}" || \
+      "$(stat -c "%U" "${MUNGE_KEY}")" != "munge" \
+      "$(stat -c "%a" "${MUNGE_KEY}")" != "400" ]]; do
+  echo "Waiting for munge.key..."
+  sleep 2
+done
+
+gosu munge /usr/sbin/munged --foreground

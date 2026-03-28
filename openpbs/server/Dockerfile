@@ -42,6 +42,8 @@ RUN curl -fsSL -O https://vcdn.altair.com/rl/OpenPBS/openpbs_23.06.06.rockylinux
  && ln -s /usr/lib64/libmunge.so.2 /usr/lib64/libmunge.so                                   \
  && adduser hpcuser
 
+RUN ln -s /usr/bin/pg_resetwal /usr/bin/pg_resetxlog
+
 ENV PATH="${PATH}:/opt/pbs/bin"
 
 COPY config/pbs.conf                                                                        \
