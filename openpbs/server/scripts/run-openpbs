@@ -39,7 +39,6 @@ for NODE in $(seq 1 ${PBS_EXECUTION_NODES}); do
     fi
 done
 
-touch /tmp/pbs.conf.ready
 
 if [ ! -f "${PBS_HOME}/pbs_version" ]; then
     echo "PBS Home directory ${PBS_HOME} needs updating."

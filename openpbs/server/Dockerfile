@@ -56,7 +56,6 @@ COPY scripts/healthcheck                                                        
      scripts/run-munge                                                                      \
      scripts/run-openpbs                                                                    \
      scripts/run-sshd                                                                       \
-     scripts/run-sched                                                                      \
      /bin/
 
 HEALTHCHECK --start-period=10s CMD healthcheck
