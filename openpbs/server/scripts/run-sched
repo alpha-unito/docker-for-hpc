@@ -1,0 +1,8 @@
+#!/bin/bash -e
+
+while [[ ! -f "/tmp/pbs.conf.ready" ]]; do
+  echo "Waiting for /tmp/pbs.conf.ready..."
+  sleep 2
+done
+
+/opt/pbs/sbin/pbs_sched -N

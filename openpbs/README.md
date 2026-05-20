@@ -7,7 +7,7 @@ This repository contains the source code of different container images:
 - `alphaunito/openpbs-server:23.06.06`, which runs the OpenPBS control plane
 - `alphaunito/openpbs-execution:23.06.06`, which runs a OpenPBS compute node
 
-Plus, it also contains a [docker-compose.yml](./docker-compose.yml) file that can deplyo an entire OpenPBS cluster with a single controller and a set of compute nodes. All these components are detailed below
+Plus, it also contains a [docker-compose.yml](./docker-compose.yml) file that can deploy an entire OpenPBS cluster with a single controller and a set of compute nodes. All these components are detailed below
 
 ## OpenPBS Server
 
@@ -29,11 +29,11 @@ To correctly register the execution nodes, an `openpbs-server` container needs 2
 - The `PBS_EXECUTION_NODES` variable must contain the number of compute nodes that OpenPBS should manage. If this variable is not set, the container displays an error message and terminates
 - The `PBS_EXECUTION_HOST_NAME_PREFIX` variable should contain the prefix of the hostname used to identify compute nodes. If this variable is not set, the container displays an error message and terminates
 
-Note that all the compute nodes in the simulated HPC cluster should have a reachable hostname equal to `"${PBS_EXECUTION_NODES}${X}"`, where `X` is an integer in the range `[1, ${PBS_EXECUTION_NODES}]`
+Note that all the compute nodes in the simulated HPC cluster should have a reachable hostname equal to `"${PBS_EXECUTION_HOST_NAME_PREFIX}-${X}"`, where `X` is an integer in the range `[1, ${PBS_EXECUTION_NODES}]`.
 
 ## OpenPBS Execution
 
-The `pbs_mom` process is the compute node daemon for OpenPBS. It places jobs into execution as directed by the server, establishes resource usage limits, monitors the job's usage, and notifies the server when the job completes. The `openpbs-execution` Docker image can be build and published using the following commands
+The `pbs_mom` process is the compute node daemon for OpenPBS. It places jobs into execution as directed by the server, establishes resource usage limits, monitors the job's usage, and notifies the server when the job completes. The `openpbs-execution` Docker image can be build and published using the following commands.
 
 ```bash
 docker build -t alphaunito/openpbs-execution:23.06.06 execution
@@ -47,6 +47,8 @@ To correctly connect to an `openpbs-server` node, an `openpbs-execution` contain
 The `openpbs-server` and `openpbs-execution` images described above can be used to set up a Docker-based OpenPBS cluster with a single controller and many compute nodes. This task can be achieved either manually or starting from the [docker-compose.yml](./docker-compose.yml) file contained in this repository
 
 Note that the `openpbs-server` node should have an identifiable hostname, as compute nodes must register with the control plane to be addressable. In Docker Compose, an explicit hostname can be set for a given service using the `hostname` keyword.
+
+**Beware of long hostnames.** The Docker FQDN (`<container>.<network>`) includes the compose project name as part of the domain. If the FQDN exceeds PBS's `HOST_NAME_MAX` (64), `pbs_mom` fails with `Failed to get fullhostname`, jobs abort with `Exit_status = -3`, and the server holds them after too many retries. Use a short project name (e.g. `docker compose -p openpbs up` or `export COMPOSE_PROJECT_NAME=openpbs`).
 
 To allow for unprivileged workloads, an `hpcuser` has been configured inside the images. Commands can be executed by explicitly impersonating this user, through the `--user hpcuser` flag. For example
 

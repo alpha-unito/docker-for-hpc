@@ -2,9 +2,9 @@
 
 MUNGE_KEY=/etc/munge/munge.key
 while [[ ! -s "${MUNGE_KEY}" || \
-      "$(stat -c "%U" "${MUNGE_KEY}")" != "munge" \
-      "$(stat -c "%a" "${MUNGE_KEY}")" != "400" ]]; do
-  echo "Waiting for munge.key..."
+      "$(stat -c "%U" "${MUNGE_KEY}" 2>/dev/null)" != "munge" || \
+      "$(stat -c "%a" "${MUNGE_KEY}" 2>/dev/null)" != "400" ]]; do
+  echo "Waiting for munge.key with correct ownership (munge) and permissions (400)..."
   sleep 2
 done
 

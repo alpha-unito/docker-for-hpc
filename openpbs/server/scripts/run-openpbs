@@ -24,6 +24,23 @@ sed -i "s/__PBS_SERVER_HOST_NAME__/${PBS_SERVER_HOST_NAME}/g" /etc/pbs.conf
 
 source /etc/pbs.conf
 
+MAX_HOSTNAME_LEN=$(getconf HOST_NAME_MAX 2>/dev/null || echo 64)
+for NODE in $(seq 1 ${PBS_EXECUTION_NODES}); do
+    NODE_NAME="${PBS_EXECUTION_HOST_NAME_PREFIX}-${NODE}"
+    NODE_IP=$(getent hosts "${NODE_NAME}" | awk '{print $1}' 2>/dev/null || true)
+    if [ -n "$NODE_IP" ]; then
+        FQDN=$(python3 -c "import socket; print(socket.gethostbyaddr('${NODE_IP}')[0])" 2>/dev/null || echo "")
+        if [ -n "$FQDN" ] && [ ${#FQDN} -ge ${MAX_HOSTNAME_LEN} ]; then
+            >&2 echo "ERROR: FQDN for node ${NODE_NAME} is ${#FQDN} chars (>= ${MAX_HOSTNAME_LEN})."
+            >&2 echo "PBS cannot resolve hostnames this long. Use a shorter project name"
+            >&2 echo "or set explicit short hostnames in docker-compose.yml."
+            exit 1
+        fi
+    fi
+done
+
+touch /tmp/pbs.conf.ready
+
 if [ ! -f "${PBS_HOME}/pbs_version" ]; then
     echo "PBS Home directory ${PBS_HOME} needs updating."
 	echo "Running ${PBS_EXEC}/libexec/pbs_habitat to update it."

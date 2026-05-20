@@ -13,4 +13,9 @@ sed -i "s/__PBS_SERVER_HOST_NAME__/${PBS_SERVER_HOST_NAME}/g" /etc/pbs.conf
 
 source /etc/pbs.conf
 
+until munge -n >/dev/null 2>&1; do
+    echo "Waiting for munged to become ready..."
+    sleep 1
+done
+
 ${PBS_EXEC}/sbin/pbs_mom -N
