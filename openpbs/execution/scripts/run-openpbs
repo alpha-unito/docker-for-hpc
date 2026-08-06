@@ -1,12 +1,21 @@
-#!/bin/bash
+#!/bin/bash -e
 
 if [ -z "${PBS_SERVER_HOST_NAME}" ]; then
     >&2 echo "Missing environment variable PBS_SERVER_HOST_NAME containing the OpenPBS server hostname"
     exit 1
 fi
 
+if [ ! -f  "/etc/pbs.conf" ]; then
+    >&2 echo "Missing /etc/pbs.conf file"
+    exit 1
+fi
 sed -i "s/__PBS_SERVER_HOST_NAME__/${PBS_SERVER_HOST_NAME}/g" /etc/pbs.conf
 
 source /etc/pbs.conf
+
+until munge -n >/dev/null 2>&1; do
+    echo "Waiting for munged to become ready..."
+    sleep 1
+done
 
 ${PBS_EXEC}/sbin/pbs_mom -N
